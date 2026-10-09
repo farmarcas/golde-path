@@ -9,6 +9,11 @@ Antes de mexer em Docker, leia `infrastructure/docker/DOCKER.md` e a skill do as
 
 Atalhos: `/subir-ambiente` e `/parar-ambiente`.
 
+## Spec Kit é obrigatório
+Para criar uma aplicação ou funcionalidade nova, **não escreva código antes de passar pelo Spec Kit**: `specify` → `plan` → `tasks` → `implement`, pedindo aprovação da pessoa ao fim de cada etapa. Leia `SPECKIT.md` e as regras em `.specify/memory/constitution.md`.
+- Se a pessoa não digitou os comandos `/speckit-*`, conduza você mesmo: leia o `SKILL.md` da etapa em `.claude/skills/speckit-<etapa>/` e siga.
+- Única exceção: correção pequena em algo que já existe (texto, cor, bug simples).
+
 ## Pré-requisito
 - Docker Desktop instalado e aberto.
 
