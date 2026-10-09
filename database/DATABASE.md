@@ -121,6 +121,19 @@ E-mails, códigos e identificadores técnicos podem permanecer na collation padr
 - Roles mínimos: app (DML limitado), migration (DDL), admin (ops). Sem superuser na aplicação.
 - Alterações de schema só via migrations versionadas; sem DDL manual em produção.
 
+### Migrations com Prisma (stack Node padrão)
+
+Em projeto Node, **`prisma/schema.prisma` é a fonte do modelo** e o Prisma Migrate gera as migrations (`prisma/migrations/<timestamp>_<nome>/migration.sql`). As regras deste guia continuam valendo; o schema Prisma deve expressá-las:
+
+- `@id @default(uuid(7)) @db.Uuid` para PK UUIDv7 gerada pela aplicação (ou `BigInt @id @default(autoincrement())` quando o contexto pedir `bigint`).
+- `@db.Timestamptz(3)` em todo instante (`created_at`, `updated_at`, `deleted_at`). Sem isso o Prisma cria `timestamp` sem fuso.
+- `@@map`/`@map` para `snake_case` no banco.
+- Exclusão lógica: campo `deletedAt` e filtro `deletedAt: null` nas leituras do repository; "remover" é `update`, não `delete`.
+- Índice parcial (unique com soft delete) e collation `pt_br` não existem no schema Prisma: crie a migration com `--create-only`, edite o SQL à mão e aplique. O Prisma não acusa divergência por causa deles.
+- Aplicar: o container da API roda `prisma migrate deploy` ao iniciar. Nunca use `prisma db push` nem `prisma migrate reset` (apaga dados) sem confirmação explícita; nunca edite migration já aplicada.
+
+Projeto sem Prisma (ex.: Python) segue as regras de SQL puro da skill [migrations](postgres/skills/migrations/SKILL.md).
+
 ### Chave primária (decisão por contexto)
 
 Escolha **um** padrão dominante por schema e **documente** a decisão (README do banco ou comentário na migration inicial). FKs devem usar o **mesmo tipo** da PK referenciada. Evite misturar `bigint` e `uuid` sem justificativa.
@@ -239,7 +252,7 @@ Padrão para tabelas de domínio:
 - Serviço `postgres` no Compose (ou compose dedicado) com healthcheck e volume.
 - Init com UTF8 (`POSTGRES_INITDB_ARGS` ou equivalente documentado).
 - `.env.example` com variáveis Postgres (sem segredos reais).
-- Pasta de migrations versionadas (arquivos UTF-8).
+- Pasta de migrations versionadas (arquivos UTF-8): `prisma/migrations/` em Node, `migrations/` nos demais.
 - Pasta `seeds/` quando houver dados de exemplo (UTF-8, só local/dev, sem PII real).
 - Collation `pt_br` (ou `"pt-BR-x-icu"`) em colunas de texto apresentadas a usuários, quando houver listagem/ordenação.
 - Decisão de PK documentada.

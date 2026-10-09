@@ -1,1 +1,20 @@
+# Segredos locais
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependências e builds
+node_modules/
+dist/
+build/
+coverage/
+src/generated/
+*.tsbuildinfo
+
+# Sistema e editores
+.DS_Store
+.idea/
+.vscode/
+*.log

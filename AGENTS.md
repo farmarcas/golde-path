@@ -81,7 +81,7 @@ Contrato HTTP é o mesmo nos dois runtimes: `/api/v1`, recurso no plural, erro `
 
 Estas skills não cobrem migration, DDL, autenticação, JWT, CORS, rate limit nem auditoria de dependências. Migration vai para o contexto de banco. Segurança HTTP ainda não tem skill: informe a lacuna.
 
-Esqueleto de referência Node, para copiar quando a skill mandar: `templates/backend/node`.
+Esqueleto de referência Node (TypeScript + Prisma), que já roda no Compose desta raiz: `backend/node`. Cópia para levar a outros projetos: `templates/backend/node` (gerada por `scripts/sync-templates.sh`; não edite à mão).
 
 ## Banco — PostgreSQL
 
@@ -98,14 +98,14 @@ Abra este contexto ao criar ou alterar banco, tabela, chave, índice, migration,
 
 Leia `DATABASE.md` antes das skills de banco. PostgreSQL é o banco relacional padrão (`postgres:16-alpine` no Compose).
 
-Schema novo: `schema-design` e depois `migrations`. Mudança em tabela que já existe: `migrations`, respeitando a PK já escolhida. Dados de exemplo: `seed-data` depois do schema (e migrations) existirem.
+Em projeto Node, o modelo mora em `prisma/schema.prisma` e as migrations são geradas pelo Prisma Migrate (seção "Migrations com Prisma" do `DATABASE.md`). Schema novo: `schema-design` e depois `migrations`. Mudança em tabela que já existe: `migrations`, respeitando a PK já escolhida. Dados de exemplo: `seed-data` depois do schema (e migrations) existirem.
 
 ## Ambiente local — Docker
 
 Guia: `infrastructure/docker/DOCKER.md`  
 Contexto extra: `infrastructure/docker/README.md` e `CLAUDE.md`
 
-Abra este contexto ao criar Dockerfile, Compose ou `.env.example`, ou ao subir, parar e diagnosticar o ambiente. Arquivos de referência para copiar: `templates/docker`.
+Abra este contexto ao criar Dockerfile, Compose ou `.env.example`, ou ao subir, parar e diagnosticar o ambiente. Arquivos de referência para copiar: `templates/docker` (cópia gerada dos arquivos da raiz; a fonte da verdade é a raiz).
 
 | Atividade | Skill | Abra quando | Pule quando |
 | --- | --- | --- | --- |

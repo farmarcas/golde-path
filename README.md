@@ -30,7 +30,7 @@ O Golden Path é um repositório que ensina a IA a criar aplicações com o padr
 
 1. Abra este projeto no Claude Code.
 2. Digite `/subir-ambiente`.
-3. Acesse a tela em **http://localhost:3000** e a API em **http://localhost:4000/health**.
+3. Acesse a tela em **http://localhost:3000** e a API em **http://localhost:4000/health/ready**.
 
 Para desligar sem perder os dados: `/parar-ambiente`.
 
@@ -59,10 +59,11 @@ Só correções pequenas (um texto, uma cor, um bug simples) podem ser pedidas d
 ```text
 golden-path/
 ├── frontend/react/      Tela: React + Vite + Tailwind
-├── backend/node/        API: Node.js (há também guia para Python)
+├── backend/node/        API: Node.js + TypeScript + Prisma (há também guia para Python, sem esqueleto)
 ├── database/postgres/   Banco: PostgreSQL com migrations
 ├── infrastructure/docker/  Docker Compose e guias de ambiente
-├── templates/           Modelos prontos para copiar
+├── templates/           Cópias dos modelos (geradas; não edite)
+├── scripts/             Verificações e sincronização dos templates
 ├── specs/               Especificações de cada funcionalidade
 └── .specify/            Regras do projeto (constituição) e Spec Kit
 ```
@@ -83,7 +84,7 @@ Cada pasta traz um **guia** (as regras daquela tecnologia) e **skills** (o passo
 As regras ficam na [constituição do projeto](.specify/memory/constitution.md). As principais:
 
 - **Spec Kit obrigatório** para app e funcionalidade nova.
-- **Tudo em Docker**: nada para instalar além do Docker Desktop.
+- **Tudo em Docker**: nada para instalar além do Docker Desktop. As portas só aceitam conexões do seu computador.
 - **Banco só muda por migration**, nunca na mão.
 - **Dados protegidos**: `docker compose down -v` e similares só rodam com sua confirmação.
 - **Segredos fora do git**: senhas ficam no `.env`, que nunca é versionado.
@@ -105,4 +106,4 @@ Na dúvida, descreva o problema para a IA. Ela sabe diagnosticar o ambiente.
 
 ## 🤝 Contribuindo
 
-Quer ensinar um novo padrão? Adicione um guia e uma skill na pasta da tecnologia e registre no [AGENTS.md](AGENTS.md). Mudanças nas regras gerais passam pela [constituição](.specify/memory/constitution.md).
+Antes de abrir PR, rode `scripts/check-repo.sh` (a CI roda o mesmo e sobe o ambiente de verdade). Quer ensinar um novo padrão? Adicione um guia e uma skill na pasta da tecnologia e registre no [AGENTS.md](AGENTS.md). Mudanças nas regras gerais passam pela [constituição](.specify/memory/constitution.md).

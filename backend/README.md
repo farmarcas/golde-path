@@ -136,7 +136,7 @@ Cada request carrega `x-request-id` (header ou id gerado). Esse id entra em todo
 
 ## Docker
 
-Imagem multi-stage, usuário não-root, `HEALTHCHECK` em `/health`. `docker compose up` sobe API e banco sem passo manual. Processo trata shutdown: para de aceitar conexão e fecha Prisma ou a engine.
+Imagem multi-stage, usuário não-root, `HEALTHCHECK` em `/health/ready`. `docker compose up` sobe API e banco sem passo manual (a API aplica as migrations pendentes ao iniciar). Processo trata shutdown: para de aceitar conexão e fecha Prisma ou a engine.
 
 ## Fora de escopo
 

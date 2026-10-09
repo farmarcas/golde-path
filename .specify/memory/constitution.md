@@ -12,22 +12,22 @@ pessoa. Cada etapa termina com a pessoa aprovando antes de seguir.
 O ambiente local sobe com `docker compose up -d --build`. Nenhuma funcionalidade
 pode exigir instalar Node, Postgres ou outra ferramenta direto na máquina.
 Portas e credenciais vêm do `.env` (nunca versionado); o `.env.example` traz
-valores só para uso local.
+valores só para uso local. As portas são publicadas só em `127.0.0.1`.
 
 ### III. Stack padrão
-PostgreSQL 16 (serviço `postgres`), API em Node 20 e front em React + Vite com
-Tailwind. Trocar ou acrescentar tecnologia exige justificativa escrita no
+PostgreSQL 16 (serviço `postgres`), API em Node 22 com TypeScript e Prisma, e front
+em React + Vite com Tailwind. Trocar ou acrescentar tecnologia exige justificativa escrita no
 `plan.md` da funcionalidade. Os serviços conversam pelo nome do serviço,
 nunca por `localhost`.
 
 ### IV. Banco só muda por migration
-Toda alteração de estrutura do banco é uma migration versionada, seguindo
-`database/DATABASE.md`. Nunca alterar tabelas manualmente nem editar migration
+Toda alteração de estrutura do banco é uma migration versionada (Prisma Migrate
+na API Node), seguindo `database/DATABASE.md`. Nunca alterar tabelas manualmente nem editar migration
 já aplicada.
 
 ### V. Dados locais são protegidos (NÃO NEGOCIÁVEL)
-Nunca rodar `docker compose down -v`, `docker volume rm`, `docker volume prune`
-ou `docker system prune` sem confirmação explícita da pessoa, explicando antes
+Nunca rodar `docker compose down -v`, `docker volume rm`, `docker volume prune`,
+`docker system prune` ou `prisma migrate reset` sem confirmação explícita da pessoa, explicando antes
 o que será perdido. Nunca parar ou remover containers de outros projetos.
 
 ### VI. Linguagem simples e execução pelo agente
@@ -67,4 +67,4 @@ Esta constituição prevalece sobre outras práticas do projeto. Mudanças exige
 atualizar este arquivo e a versão abaixo. Todo `plan.md` deve verificar
 conformidade com estes princípios. Guia de uso diário: `CLAUDE.md` e `SPECKIT.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-09 | **Last Amended**: 2026-10-09
+**Version**: 1.2.0 | **Ratified**: 2026-10-09 | **Last Amended**: 2026-10-09
