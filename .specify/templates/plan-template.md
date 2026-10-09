@@ -10,6 +10,12 @@
 
 [Extract from feature spec: primary requirement + technical approach from research]
 
+## For the reader
+
+Chosen: [one sentence, no jargon]
+
+Why: [one sentence]
+
 ## Technical Context
 
 <!--

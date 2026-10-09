@@ -59,6 +59,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Goal: Detect and reduce ambiguity or missing decision points in the active feature specification and record the clarifications directly in the spec file.
 
+### Golden Path — decisions and voice (required)
+
+This overrides the generic loop below. Constitution, principle VIII.
+
+- Do not ask about technology, architecture, performance, libraries, protocols, or task breakdown. Decide (the constitution, or what the project already uses) and record under Assumptions: `Decision: … Why: …`.
+- Ask at most 2 questions in total, and only if the answer changes what the product does, who it is for, or what stays out. If a sensible default exists, decide and do not ask.
+- All questions in the same message, in the user's everyday language. Each one: one sentence, `Suggestion:`, and the why in one sentence. No option table.
+- If there is no business gap, do not ask. Say what you assumed (at most 3 lines) and that planning can start.
+
 Note: This clarification workflow is expected to run (and be completed) BEFORE invoking `/speckit-plan`. If the user explicitly states they are skipping clarification (e.g., exploratory spike), you may proceed, but must warn that downstream rework risk increases.
 
 Execution steps:
@@ -124,62 +133,29 @@ Execution steps:
    - TODO markers / unresolved decisions
    - Ambiguous adjectives ("robust", "intuitive") lacking quantification
 
-   For each category with Partial or Missing status, add a candidate question opportunity unless:
-   - Clarification would not materially change implementation or validation strategy
-   - The item is specifically about implementation method, tech-stack comparison, or task breakdown (note internally)
+   For each category with Partial or Missing status:
+   - If it is technical (implementation method, tech stack, performance numbers, libraries, protocols, structure, auth mechanism, task breakdown): do not queue a question. Decide and append under Assumptions: `- Decision: … Why: …`. Write that to the spec now.
+   - If it is business and a sensible default exists: decide, record the assumption, do not ask.
+   - Queue a question only when the answer changes what the product does, who it is for, or what is out of scope, and no sensible default exists.
 
-4. Generate (internally) a prioritized queue of candidate clarification questions (maximum 5). Do NOT output them all at once. Apply these constraints:
-    - Maximum of 5 total questions across the whole session.
-    - Each question must be answerable with EITHER:
-       - A short multiple‑choice selection (2–5 distinct, mutually exclusive options), OR
-       - A one-word / short‑phrase answer (explicitly constrain: "Answer in <=5 words").
-    - Only include questions whose answers materially impact architecture, data modeling, task decomposition, test design, UX behavior, operational readiness, or compliance validation.
-    - Ensure category coverage balance: attempt to cover the highest impact unresolved categories first; avoid asking two low-impact questions when a single high-impact area (e.g., security posture) is unresolved.
-    - Exclude questions already answered, trivial stylistic preferences, or plan-level execution details (unless blocking correctness).
-    - Favor clarifications that reduce downstream rework risk or prevent misaligned acceptance tests.
-    - If more than 5 categories remain unresolved, select the top 5 by (Impact * Uncertainty) heuristic.
+4. Keep at most 2 business questions. Drop the rest by deciding them. Do not output a coverage map.
 
-5. Sequential questioning loop (interactive):
-    - Present EXACTLY ONE question at a time.
-    - **Question writing quality (applies to every question, MC or short-answer):**
-       - Lead with `**Question:**` followed by a full interrogative that ends with `?`. The question text before the `?` must make sense on its own.
-       - NEVER use a topic label, section heading, or requirement id as the question itself. For example, `Acceptance device/runtime matrix (FR-023)` is INVALID — it is a label, not a question.
-       - After the `?`, the only permitted suffix is an optional parenthesized requirement/question id. Exact format: `**Question:** <interrogative>?` or `**Question:** <interrogative>? (FR-023)`. Never put the id before the `?`, and never use the id (alone or with a topic label) as the whole prompt.
-       - Immediately after the question line, add one plain-language "Why it matters" sentence (the stake for acceptance or shipping) before the recommendation/options.
-       - Use everyday wording; introduce jargon only if defined in the same sentence. Self-check: a reader who does not know Spec Kit must be able to answer from the Question line alone. Terse is fine; cryptic labels are not.
-    - For multiple‑choice questions:
-       - **Analyze all options** and determine the **most suitable option** based on:
-          - Best practices for the project type
-          - Common patterns in similar implementations
-          - Risk reduction (security, performance, maintainability)
-          - Alignment with any explicit project goals or constraints visible in the spec
-       - Present your **recommended option prominently** at the top with clear reasoning (1-2 sentences explaining why this is the best choice).
-       - Format as: `**Recommended:** Option [X] - <reasoning>`
-       - Then render all options as a Markdown table:
+5. One message, then stop:
+    - If the queue is empty: do not ask. Tell the user, in everyday words, what you assumed (at most 3 lines) and that planning can start.
+    - If it is not empty, ask all of them together:
 
-       | Option | Description |
-       |--------|-------------|
-       | A | <Option A description> |
-       | B | <Option B description> |
-       | C | <Option C description> (add D/E as needed up to 5) |
-       | Short | Provide a different short answer (<=5 words) (Include only if free-form alternative is appropriate) |
+      ```text
+      I need to confirm before continuing:
 
-       - After the table, add: `You can reply with the option letter (e.g., "A"), accept the recommendation by saying "yes" or "recommended", or provide your own short answer.`
-    - For short‑answer style (no meaningful discrete options):
-       - Provide your **suggested answer** based on best practices and context.
-       - Format as: `**Suggested:** <your proposed answer> - <brief reasoning>`
-       - Then output: `Format: Short answer (<=5 words). You can accept the suggestion by saying "yes" or "suggested", or provide your own answer.`
-    - After the user answers:
-       - If the user replies with "yes", "recommended", or "suggested", use your previously stated recommendation/suggestion as the answer.
-       - Otherwise, validate the answer maps to one option or fits the <=5 word constraint.
-       - If ambiguous, ask for a quick disambiguation (count still belongs to same question; do not advance).
-       - Once satisfactory, record it in working memory (do not yet write to disk) and move to the next queued question.
-    - Stop asking further questions when:
-       - All critical ambiguities resolved early (remaining queued items become unnecessary), OR
-       - User signals completion ("done", "good", "no more"), OR
-       - You reach 5 asked questions.
-    - Never reveal future queued questions in advance.
-    - If no valid questions exist at start, immediately report no critical ambiguities.
+      1. [question]? Suggestion: [answer]. [why, one sentence]
+      2. ...
+
+      Reply with the number, or say "go ahead with the suggestion".
+      ```
+
+    - The question must make sense to someone who does not know Spec Kit. No topic labels, no requirement ids, no option tables. Write it in the user's everyday language.
+    - "yes", "go ahead", or "suggestion" accepts your suggestions. If the reply is ambiguous, ask the same questions again; that retry is not a new question.
+    - Do not open a second round.
 
 6. Integration after EACH accepted answer (incremental update approach):
     - Maintain in-memory representation of the spec (loaded once at start) plus the raw file contents.
@@ -201,7 +177,7 @@ Execution steps:
 
 7. Validation (performed after EACH write plus final pass):
    - Clarifications session contains exactly one bullet per accepted answer (no duplicates).
-   - Total asked (accepted) questions ≤ 5.
+   - Total asked (accepted) questions ≤ 2.
    - Updated sections contain no lingering vague placeholders the new answer was meant to resolve.
    - No contradictory earlier statement remains (scan for now-invalid alternative choices removed).
    - Markdown structure valid; only allowed new headings: `## Clarifications`, `### Session YYYY-MM-DD`.
@@ -230,13 +206,12 @@ Execution steps:
 
 Behavior rules:
 
-- If no meaningful ambiguities found (or all potential questions would be low-impact), respond: "No critical ambiguities detected worth formal clarification." and suggest proceeding.
+- If no business question is worth asking, say in everyday words what you assumed (at most 3 lines) and that planning can start. Do not dump a coverage table.
 - If spec file missing, instruct user to run `/speckit-specify` first (do not create a new spec here).
-- Never exceed 5 total asked questions (clarification retries for a single question do not count as new questions).
-- Avoid speculative tech stack questions unless the absence blocks functional clarity.
+- Never exceed 2 business questions, asked once (a retry of an ambiguous reply does not count as new).
+- Never ask a tech stack, architecture, or performance question. Decide it.
 - Respect user early termination signals ("stop", "done", "proceed").
-- If no questions asked due to full coverage, output a compact coverage summary (all categories Clear) then suggest advancing.
-- If quota reached with unresolved high-impact categories remaining, explicitly flag them under Deferred with rationale.
+- If the 2-question cap leaves a business gap that would change the product, note it in one plain sentence under the closing. Do not start another questionnaire.
 
 Context for prioritization: $ARGUMENTS
 
@@ -277,18 +252,17 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Report completion (after questioning loop ends or early termination):
-- Number of questions asked & answered.
-- Path to updated spec.
-- Sections touched (list names).
-- Spec quality checklist status (if `FEATURE_DIR/checklists/requirements.md` was re-validated): show before/after pass counts (e.g., "Spec Quality Checklist: 12/16 → 15/16 items passing") and list any items that changed state — both newly checked (unchecked → checked) and any regressions (checked → unchecked). If any items remain unchecked, list them as areas needing attention.
-- Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota, or remaining item is specifically implementation method, tech-stack comparison, or task breakdown), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
-- If any Outstanding or Deferred remain, recommend whether to proceed to `/speckit-plan` or run `/speckit-clarify` again later post-plan.
-- Suggested next command.
+Tell the user this, in their everyday language (no file paths, no coverage table, no jargon):
+
+- What was decided, in at most 3 lines.
+- Each technical decision as `Chosen` / `Why` (at most 3).
+- "May I continue to the plan?"
+
+Keep for yourself, and show only if asked: number of questions, spec path, sections touched, checklist counts.
 
 ## Done When
 
 - [ ] Spec ambiguities identified and clarifications integrated into spec file
 - [ ] Spec quality checklist re-validated against updated spec (if `FEATURE_DIR/checklists/requirements.md` exists)
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with questions answered, sections touched, checklist status, and coverage summary
+- [ ] Closing told the user what was decided (Chosen / Why) and asked once if planning can start

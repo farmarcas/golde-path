@@ -26,7 +26,7 @@ Carregue o contexto que o pedido exige. Pedido de tela abre o frontend. Pedido d
 
 Um serviço usa um runtime. Node e Python não convivem no mesmo serviço. Ofereça comparação de stack somente quando a pessoa pedir.
 
-Quem pede pode não ser desenvolvedor. Explique em linguagem simples e execute os comandos você mesmo.
+Quem pede pode não ser desenvolvedor. Explique em linguagem simples, curto, e execute os comandos você mesmo. Não pergunte stack: use o padrão (ou o que o projeto já tem), diga o que escolheu e por quê. Perguntas só de negócio. No Spec Kit, siga `SPECKIT.md`.
 
 ## Ordem sugerida ao montar uma aplicação inteira
 

@@ -93,10 +93,13 @@
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
 
-*Example of marking unclear requirements:*
+*Open technical detail: the agent decides and records it under Assumptions. Do not leave a technical question for the user.*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-006**: Users can sign in with email and password.
+
+*Mark [NEEDS CLARIFICATION] only when the answer changes what the product does and no sensible default exists (at most 2, in plain language):*
+
+- **FR-007**: System MUST keep records for [NEEDS CLARIFICATION: how long must these records be kept?]
 
 ### Key Entities *(include if feature involves data)*
 
