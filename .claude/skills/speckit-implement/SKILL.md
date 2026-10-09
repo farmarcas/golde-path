@@ -84,7 +84,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
    - **If any checklist has unchecked items**:
      - Display the table with unchecked item counts
-     - **STOP** and ask: "Some checklists have unchecked items. Do you want to proceed with implementation anyway? (yes/no)"
+     - **STOP** and ask, in the user's everyday language: "Some review points are still open. Should I continue anyway?"
      - Wait for user response before continuing
      - If user says "no" or "wait" or "stop", halt execution
      - If user says "yes" or "proceed" or "continue", proceed to step 3
@@ -167,11 +167,11 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Polish and validation**: Unit tests, performance optimization, documentation
 
 8. Progress tracking and error handling:
-   - Report progress after each completed task
+   - Tell the user only when a phase finishes, in one or two everyday sentences (what they can now do). Do not narrate each task.
+   - If a business rule blocks you, ask one plain question. Technical gaps: decide, then one `Chosen` / `Why` line. Do not offer a tech menu.
    - Halt execution if any non-parallel task fails
    - For parallel tasks [P], continue with successful tasks, report failed ones
-   - Provide clear error messages with context for debugging
-   - Suggest next steps if implementation cannot proceed
+   - If something fails, say what stopped and the next step in plain language. Keep technical detail short.
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
 9. Completion validation:
@@ -219,11 +219,11 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Report final status with summary of completed work.
+Tell the user, in their everyday language and with no jargon: what is ready, how to check it (the URL, if the environment is up), and one `Chosen` / `Why` line only if a technical choice came up while building. Do not list tasks or files unless asked.
 
 ## Done When
 
 - [ ] All tasks in tasks.md completed and marked `[X]`
 - [ ] Implementation validated against specification, plan, and test coverage
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with summary of completed work
+- [ ] Closing told the user what is ready and how to open it, in everyday words

@@ -59,6 +59,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 The text the user typed after `/speckit-specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
+### Golden Path — decisions and voice (required)
+
+This overrides any instruction below that asks for a technology menu or several rounds of questions. Constitution, principle VIII.
+
+- Ask only what changes the product: what it does, who it is for, what stays out. At most 2 questions, in the same message. If a sensible default exists, do not ask: record it in Assumptions.
+- Stack, libraries, database, folders, sign-in, performance, and tests: you choose (the constitution, or what the project already uses). Never ask.
+- Close briefly, in the user's everyday language, with no jargon: `Chosen` / `Why` (at most 3) and `May I continue?`. Do not list files or the checklist unless asked.
+
 Given that feature description, do this:
 
 1. **Generate a concise short name** (2-4 words) for the feature:
@@ -122,13 +130,11 @@ Given that feature description, do this:
     2. Extract key concepts from description
        Identify: actors, actions, data, constraints
     3. For unclear aspects:
-       - Make informed guesses based on context and industry standards
-       - Only mark with [NEEDS CLARIFICATION: specific question] if:
-         - The choice significantly impacts feature scope or user experience
-         - Multiple reasonable interpretations exist with different implications
-         - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
-       - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
+       - Technical (stack, library, storage, auth mechanism, performance, structure): choose from the constitution or the existing project. Record in Assumptions as "Decision: … Why: …". Never mark these [NEEDS CLARIFICATION] and never ask the user.
+       - Business (who it is for, what is in or out, a rule that changes what gets built): guess when a sensible default exists and record it in Assumptions.
+       - Mark [NEEDS CLARIFICATION: plain-language question] only when no sensible default exists AND the answer changes the product.
+       - **LIMIT: Maximum 2 [NEEDS CLARIFICATION] markers total**
+       - Priority: what the product does > who it is for > what stays out. Never technical details.
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
     5. Generate Functional Requirements
@@ -199,39 +205,22 @@ Given that feature description, do this:
         4. If still failing after 3 iterations, document remaining issues in checklist notes and warn user
 
       - **If [NEEDS CLARIFICATION] markers remain**:
-        1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest
-        3. For each clarification needed (max 3), present options to user in this format:
+        1. Extract all markers. If more than 2, keep the 2 that change what the product does and decide the rest (record in Assumptions).
+        2. Drop any technical marker. Decide it and record "Decision: … Why: …" in Assumptions.
+        3. If none remain, do not ask. Continue.
+        4. If any remain (max 2), ask once, in the user's everyday language, in the same message:
 
-           ```markdown
-           ## Question [N]: [Topic]
+           ```text
+           I need to confirm before continuing:
 
-           **Context**: [Quote relevant spec section]
+           1. [question]? Suggestion: [answer]. [why, one sentence]
+           2. ...
 
-           **What we need to know**: [Specific question from NEEDS CLARIFICATION marker]
-
-           **Suggested Answers**:
-
-           | Option | Answer | Implications |
-           |--------|--------|--------------|
-           | A      | [First suggested answer] | [What this means for the feature] |
-           | B      | [Second suggested answer] | [What this means for the feature] |
-           | C      | [Third suggested answer] | [What this means for the feature] |
-           | Custom | Provide your own answer | [Explain how to provide custom input] |
-
-           **Your choice**: _[Wait for user response]_
+           Reply with the number, or say "go ahead with the suggestion".
            ```
 
-        4. **CRITICAL - Table Formatting**: Ensure markdown tables are properly formatted:
-           - Use consistent spacing with pipes aligned
-           - Each cell should have spaces around content: `| Content |` not `|Content|`
-           - Header separator must have at least 3 dashes: `|--------|`
-           - Test that the table renders correctly in markdown preview
-        5. Number questions sequentially (Q1, Q2, Q3 - max 3 total)
-        6. Present all questions together before waiting for responses
-        7. Wait for user to respond with their choices for all questions (e.g., "Q1: A, Q2: Custom - [details], Q3: B")
-        8. Update the spec by replacing each [NEEDS CLARIFICATION] marker with the user's selected or provided answer
-        9. Re-run validation after all clarifications are resolved
+        5. Wait for one reply. If the user accepts the suggestion, use it.
+        6. Replace each marker with the answer. Re-run validation.
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
@@ -272,11 +261,14 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Report completion to the user with:
-- `SPECIFY_FEATURE_DIRECTORY` — the feature directory path
-- `SPEC_FILE` — the spec file path
-- Checklist results summary
-- Readiness for the next phase (`/speckit-clarify` or `/speckit-plan`)
+Tell the user this, in their everyday language (no file paths, no jargon):
+
+- In 2 sentences: what will be built.
+- Each decision you made, at most 3: `Chosen` / `Why`.
+- If a business assumption remains, one line.
+- One question: "May I continue to the plan?"
+
+Keep for yourself, and show only if asked: `SPECIFY_FEATURE_DIRECTORY`, `SPEC_FILE`, checklist result, next command (`/speckit-plan`). Use `/speckit-clarify` only if a business rule is still missing.
 
 **NOTE:** Branch creation is handled by the `before_specify` hook (git extension). Spec directory and file creation are always handled by this core command.
 
@@ -299,16 +291,14 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
-   - Significantly impact feature scope or user experience
-   - Have multiple reasonable interpretations with different implications
-   - Lack any reasonable default
-4. **Prioritize clarifications**: scope > security/privacy > user experience > technical details
+3. **Limit clarifications**: Maximum 2 [NEEDS CLARIFICATION] markers, business only, when no sensible default exists and the answer changes the product
+4. **Prioritize clarifications**: what the product does > who it is for > what stays out. Never ask technical details
 5. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
 6. **Common areas needing clarification** (only if no reasonable default exists):
    - Feature scope and boundaries (include/exclude specific use cases)
-   - User types and permissions (if multiple conflicting interpretations possible)
-   - Security/compliance requirements (when legally/financially significant)
+   - Who the product is for (only if two readings would build different products)
+   - A business or legal rule (how long data must be kept, who may see it) when it changes what gets built
+   - Do not ask how login, storage, or security will be built. Decide and record it.
 
 **Examples of reasonable defaults** (don't ask about these):
 
@@ -345,4 +335,4 @@ Success criteria must be:
 
 - [ ] Specification written to `SPEC_FILE` and validated against quality checklist
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with feature directory, spec file path, and checklist results
+- [ ] Closing told the user what will be built, each choice as Chosen / Why, and one go-ahead question

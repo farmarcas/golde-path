@@ -126,6 +126,12 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
+### Golden Path — voice (required)
+
+Speak in the user's everyday language, with no jargon and without the task list: what they will be able to do when the first slice is ready (1–2 sentences), what comes first, and "May I start building?". If a technical choice is still open, you choose and say `Chosen` / `Why`. Do not ask how to implement.
+
+Keep for yourself, and show only if asked:
+
 Output path to generated tasks.md and summary:
 - Total task count
 - Task count per user story
@@ -215,4 +221,4 @@ Every task MUST strictly follow this format:
 
 - [ ] tasks.md generated with all phases, task IDs, and file paths
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with task count, story breakdown, and MVP scope
+- [ ] Closing told the user what the first slice will let them do, and asked once if building can start

@@ -62,12 +62,17 @@ You **MUST** consider the user input before proceeding (if not empty).
 2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`. Load IMPL_PLAN template (already copied).
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
-   - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
+   - Fill Technical Context. A "NEEDS CLARIFICATION" mark is only a scratch note. Resolve every one yourself in Phase 0. Never ask the user.
+   - Choose the stack from the constitution (PostgreSQL 16, Node 20, React + Vite + Tailwind, Docker Compose) or from what the repo already uses. Use another stack only if the user already asked for it. Record the reason in `research.md` and a plain-language line in `plan.md` under "For the reader".
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
+
+### Golden Path — decisions and voice (required)
+
+Constitution, principle VIII. Do not ask about technology. Close in the user's everyday language, with no jargon: what will be built (1–2 sentences), each choice as `Chosen` / `Why` (at most 4, translated from "For the reader" and from `research.md`), and "May I draft the task list?". Do not dump file paths unless asked.
 
 ## Mandatory Post-Execution Hooks
 
@@ -106,14 +111,14 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts.
+Command ends after Phase 1 design. The user hears the Golden Path closing above. Keep branch, IMPL_PLAN path, and generated artifacts for yourself unless they ask.
 
 ## Phases
 
 ### Phase 0: Outline & Research
 
-1. **Extract unknowns from Technical Context** above:
-   - For each NEEDS CLARIFICATION → research task
+1. **Extract unknowns from Technical Context** above. Do not turn any of these into user questions.
+   - For each NEEDS CLARIFICATION → research task, then decide
    - For each dependency → best practices task
    - For each integration → patterns task
 
@@ -130,6 +135,8 @@ Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated 
    - Decision: [what was chosen]
    - Rationale: [why chosen]
    - Alternatives considered: [what else evaluated]
+
+   Alternatives stay in `research.md`. The user hears only the choice and a one-sentence why, in everyday words, via the "For the reader" section.
 
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
@@ -166,4 +173,4 @@ Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated 
 
 - [ ] Plan workflow executed and design artifacts generated
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with branch, plan path, and generated artifacts
+- [ ] Closing told the user what will be built, each technical choice as Chosen / Why, and asked once if the task list can start
