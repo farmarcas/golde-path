@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(docker version *)",
+      "Bash(docker info *)",
+      "Bash(docker ps *)",
+      "Bash(docker images *)",
+      "Bash(docker logs *)",
+      "Bash(docker inspect *)",
+      "Bash(docker exec *)",
+      "Bash(docker build *)",
+      "Bash(docker pull *)",
+      "Bash(docker run *)",
+      "Bash(docker start *)",
+      "Bash(docker stop *)",
+      "Bash(docker restart *)",
+      "Bash(docker network *)",
+      "Bash(docker volume ls *)",
+      "Bash(docker volume inspect *)",
+      "Bash(docker compose *)",
+      "Bash(docker-compose *)",
+      "Bash(open -a Docker)"
+    ],
+    "deny": [
+      "Bash(docker system prune *)",
+      "Bash(docker volume prune *)",
+      "Bash(docker volume rm *)",
+      "Bash(docker image prune *)",
+      "Bash(docker compose down -v *)",
+      "Bash(docker compose down --volumes *)"
+    ]
+  }
+}
