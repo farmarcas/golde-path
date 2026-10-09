@@ -76,7 +76,7 @@ export const makeUsersService = (repo: UsersRepository) => ({
 ```ts
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().url(),
 });
 export const env = envSchema.parse(process.env);
@@ -154,7 +154,7 @@ Auth, JWT, senha, helmet, CORS, rate limit e auditoria de dependências ficam pa
 
 Testes unitários: seguir a skill [testing](../testing/SKILL.md).
 
-Rotas: teste de integração com Supertest sobre `app` (sem `listen`), banco de teste real via docker-compose. Cobrir caminho feliz, validação (400), não encontrado (404) e conflito (409).
+Rotas: teste de integração com Supertest sobre `app` (sem `listen`), banco de teste real, dentro do Docker: `docker compose exec api npm run test:integration` (usa o banco `<POSTGRES_DB>_test`, criado pelo Prisma, nunca o de desenvolvimento). Cobrir caminho feliz, validação (400), não encontrado (404) e conflito (409).
 
 ## Scripts do package.json
 
@@ -165,45 +165,30 @@ Rotas: teste de integração com Supertest sobre `app` (sem `listen`), banco de 
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "lint": "eslint . && prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "DATABASE_URL=\"$TEST_DATABASE_URL\" NODE_ENV=test prisma migrate deploy && vitest run --config vitest.integration.config.ts"
   }
 }
 ```
 
 ## Docker
 
-- Multi-stage: `build` (instala tudo, compila) -> `runtime` (só `dependencies` + `dist`).
+- Multi-stage: `dev` (usado pelo Compose local: hot reload, código por bind mount) -> `build` (instala tudo, compila) -> `runtime` (só `dependencies` + `dist`; último estágio = padrão de `docker build`).
+- O Compose usa `target: dev` e inicia por `docker/dev-entrypoint.sh`: reinstala dependências só se `package.json`/`package-lock.json` mudaram, roda `prisma generate`, aplica `prisma migrate deploy` e sobe `npm run dev`.
+- Fonte da verdade: [`backend/node/Dockerfile`](../../Dockerfile). Não reescreva de cabeça; copie.
 - Imagem `node:<lts>-alpine`, `NODE_ENV=production`, `npm ci --omit=dev`.
 - Rodar como usuário não-root (`USER node`).
-- `HEALTHCHECK` batendo em `/health`.
+- `HEALTHCHECK` batendo em `/health/ready`.
 - `.dockerignore` com `node_modules`, `.env`, `dist`, `.git`.
 - `server.ts` trata `SIGTERM`/`SIGINT`: para de aceitar conexões, fecha Prisma, sai.
 
-```dockerfile
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package*.json prisma ./
-RUN npm ci
-COPY . .
-RUN npx prisma generate && npm run build
-
-FROM node:22-alpine AS runtime
-ENV NODE_ENV=production
-WORKDIR /app
-COPY package*.json prisma ./
-RUN npm ci --omit=dev && npx prisma generate
-COPY --from=build /app/dist ./dist
-USER node
-EXPOSE 3000
-HEALTHCHECK CMD wget -qO- http://localhost:3000/health || exit 1
-CMD ["node", "dist/server.js"]
-```
+Veja o arquivo completo em [`backend/node/Dockerfile`](../../Dockerfile) (porta `4000`, healthcheck em `/health/ready`).
 
 ## Fluxo para criar um novo endpoint/recurso
 
 ```
 - [ ] 1. Schemas Zod em <modulo>.schemas.ts
-- [ ] 2. Repository (Prisma) em cima do schema já existente
+- [ ] 2. Repository (Prisma) em cima do schema já existente; tabelas de domínio usam exclusão lógica (`deletedAt`), nunca `delete` físico
 - [ ] 3. Teste do service falhando (RED)
 - [ ] 4. Service com a regra de negócio (GREEN)
 - [ ] 5. Controller + routes com validate(schema); registrar rota no app.ts

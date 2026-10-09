@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repo:
+    name: Consistência do repositório
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/check-repo.sh
+
+  api:
+    name: API (lint, build, testes unitários)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/node
+    env:
+      DATABASE_URL: postgresql://app:app@localhost:5432/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: backend/node/.nvmrc
+          cache: npm
+          cache-dependency-path: backend/node/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test
+
+  web:
+    name: Tela (build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/react
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: backend/node/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/react/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  compose:
+    name: Ambiente Docker (sobe, health e testes de integração)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Subir o ambiente
+        run: |
+          cp .env.example .env
+          docker compose up -d --build --wait
+          docker compose ps
+      - name: API e banco respondem
+        run: curl -fsS localhost:4000/health/ready
+      - name: Tela fala com a API pelo proxy
+        run: curl -fsS localhost:3000/health/ready
+      - name: Testes de integração (dentro do container)
+        run: docker compose exec -T api npm run test:integration
+      - name: Imagem de produção da API compila
+        run: docker build --target runtime backend/node
+      - name: Logs em caso de falha
+        if: failure()
+        run: docker compose logs --tail=200
+      - name: Limpar (runner descartável)
+        if: always()
+        run: docker compose down -v

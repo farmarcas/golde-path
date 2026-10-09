@@ -5,8 +5,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env}
+      # UTF8 só vale na primeira criação do volume (database/DATABASE.md).
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      # 127.0.0.1: só este computador acessa; outros aparelhos da rede não.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,30 +21,49 @@ services:
   api:
     build:
       context: ./backend/node
+      target: dev
     environment:
+      NODE_ENV: development
       PORT: 4000
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # Banco separado para testes de integração (o Prisma o cria se não existir).
+      TEST_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}_test
     ports:
-      - "${API_PORT:-4000}:4000"
+      - "127.0.0.1:${API_PORT:-4000}:4000"
     volumes:
       - ./backend/node:/app
       - api_node_modules:/app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/health/ready >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   web:
     build:
       context: ./frontend/react
+      target: dev
     environment:
-      VITE_API_URL: http://localhost:${API_PORT:-4000}
+      # O Vite repassa /api e /health para a API: o navegador fala só com a porta da tela (sem CORS).
+      API_PROXY_TARGET: http://api:4000
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     volumes:
       - ./frontend/react:/app
       - web_node_modules:/app/node_modules
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
 volumes:
   postgres_data:

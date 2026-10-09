@@ -2,6 +2,10 @@
 
 Quem usa este projeto pode não ser desenvolvedor. Explique em linguagem simples, sem jargão, e faça você mesmo os comandos em vez de pedir que a pessoa rode no terminal.
 
+@AGENTS.md
+
+O `AGENTS.md` acima é o mapa: ele diz qual guia e qual skill abrir para tela, API, banco e ambiente. As skills também estão registradas em `.claude/skills/` (atalhos para as pastas de cada área).
+
 ## Guias
 Antes de mexer em Docker, leia `infrastructure/docker/DOCKER.md` e a skill do assunto:
 - Subir, parar e diagnosticar: `infrastructure/docker/skills/local-environment/SKILL.md`
@@ -24,15 +28,15 @@ Para criar uma aplicação ou funcionalidade nova, **não escreva código antes 
 
 ## Subir o ambiente
 - Se não existir `.env`, rode `cp .env.example .env`.
-- `docker compose up -d --build`
-- Confira com `docker compose ps` que todos os serviços estão `running`/`healthy`.
+- `docker compose up -d --build --wait`
+- Confira com `docker compose ps` que os três serviços estão `healthy`.
 - Informe à pessoa a URL de acesso (ex.: http://localhost:3000).
 
 ## Problemas comuns
 - Ver erros: `docker compose logs --tail=100 <serviço>`
-- Reiniciar: `docker compose restart <serviço>`
+- Reiniciar: `docker compose restart <serviço>` (também reinstala dependências novas sozinho)
 - Parar tudo: `docker compose down`
 - Porta ocupada: avise qual porta e qual programa a usa, e mude a porta no `.env` (`POSTGRES_PORT`, `API_PORT`, `WEB_PORT`) em vez de parar o outro programa.
 
 ## Nunca faça sem pedir confirmação explícita
-- `docker compose down -v`, `docker volume rm`, `docker system prune` — apagam dados do banco local.
+- `docker compose down -v`, `docker volume rm`, `docker system prune`, `prisma migrate reset` — apagam dados do banco local.

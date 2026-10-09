@@ -9,7 +9,22 @@ description: Creates and applies versioned PostgreSQL migrations with expand/con
 
 Antes de criar ou aplicar migrations, leia e aplique [DATABASE.md](../../../DATABASE.md). Respeite o tipo de PK já escolhido no schema (não mude o padrão sem migration explícita e justificada).
 
-## Convenção de arquivos
+## Projeto Node com Prisma (padrão)
+
+Se existir `prisma/schema.prisma`, use o Prisma Migrate em vez de escrever o arquivo do zero. Leia a seção "Migrations com Prisma" do `DATABASE.md`.
+
+1. Edite `prisma/schema.prisma` (tipos `@db.Timestamptz(3)`, `deletedAt`, `@map` em `snake_case`).
+2. Gere a migration sem aplicar: `docker compose exec api npx prisma migrate dev --create-only --name descricao_curta`.
+3. Se precisar de índice parcial ou collation, edite o `migration.sql` gerado.
+4. Aplique: `docker compose restart api` (o container roda `prisma migrate deploy` ao iniciar) e confira `docker compose logs --tail=30 api`.
+5. Confirme que não há divergência: `docker compose exec api npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code`.
+6. Teste: `docker compose exec api npm run test:integration`.
+
+Proibido sem confirmação explícita: `prisma migrate reset`, `prisma db push --force-reset` (apagam o banco local), e editar migration já aplicada.
+
+As regras abaixo valem para os dois caminhos; a convenção de nome e o comando `psql` são para projetos **sem** Prisma.
+
+## Convenção de arquivos (SQL puro, sem Prisma)
 
 - Pasta sugerida no projeto consumidor: `migrations/` (ou a pasta já usada pela ferramenta do projeto).
 - Nome: `YYYYMMDDHHMMSS_descricao_curta.sql` (UTC, `snake_case` na descrição).
@@ -47,7 +62,7 @@ CREATE UNIQUE INDEX products_name_active_uidx
 6. FKs e colunas novas devem seguir o tipo de PK já adotado (`bigint` ou `uuid`).
 7. Migrations devem ser idempotentes quando a ferramenta do projeto exigir (`IF NOT EXISTS` com cuidado — não mascarar erros de design).
 
-## Aplicar no Postgres do Compose
+## Aplicar no Postgres do Compose (SQL puro, sem Prisma)
 
 Com o serviço saudável (`docker compose ps` / healthcheck ok):
 

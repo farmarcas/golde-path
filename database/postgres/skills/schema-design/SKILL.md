@@ -20,6 +20,7 @@ Antes de modelar, leia e aplique [DATABASE.md](../../../DATABASE.md). Este arqui
 7. Se houver PII, aplique minimização, classificação e retenção/anonimização conforme LGPD no `DATABASE.md`.
 8. Crie uniques de negócio como índices parciais `WHERE deleted_at IS NULL`.
 9. Use `timestamptz` para instantes e `created_at` / `updated_at` quando fizer sentido.
+10. Em projeto Node, escreva o modelo em `prisma/schema.prisma` (`@db.Timestamptz(3)`, `@default(uuid(7)) @db.Uuid`, `deletedAt`, `@map` em `snake_case`) e gere a migration pela skill `migrations`. Veja "Migrations com Prisma" no `DATABASE.md`.
 
 ## Templates mínimos
 
