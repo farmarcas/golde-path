@@ -20,7 +20,9 @@ describe('toErrorResponse', () => {
   });
 
   it('deve responder 409 quando erro é ConflictError', () => {
-    const response = toErrorResponse(new ConflictError('E-mail já cadastrado', 'EMAIL_ALREADY_EXISTS'));
+    const response = toErrorResponse(
+      new ConflictError('E-mail já cadastrado', 'EMAIL_ALREADY_EXISTS'),
+    );
 
     expect(response).toMatchObject({
       statusCode: 409,
@@ -42,9 +44,7 @@ describe('toErrorResponse', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    expect(response.body.error.details).toEqual([
-      expect.objectContaining({ path: 'email' }),
-    ]);
+    expect(response.body.error.details).toEqual([expect.objectContaining({ path: 'email' })]);
   });
 
   it('deve responder 409 quando Prisma retorna P2002', () => {

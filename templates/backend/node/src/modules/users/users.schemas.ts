@@ -13,9 +13,11 @@ export const createUserSchema = z
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 
-export const updateUserSchema = createUserSchema.partial().refine((input) => Object.keys(input).length > 0, {
-  message: 'Informe ao menos um campo',
-});
+export const updateUserSchema = createUserSchema
+  .partial()
+  .refine((input) => Object.keys(input).length > 0, {
+    message: 'Informe ao menos um campo',
+  });
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 

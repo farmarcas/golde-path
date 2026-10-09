@@ -30,8 +30,12 @@ describe('makeUsersService.create', () => {
     });
     const service = makeUsersService(repo);
 
-    await expect(service.create({ name: 'Ana', email: 'a@a.com' })).rejects.toBeInstanceOf(ConflictError);
-    await expect(service.create({ name: 'Ana', email: 'a@a.com' })).rejects.toThrow('E-mail já cadastrado');
+    await expect(service.create({ name: 'Ana', email: 'a@a.com' })).rejects.toBeInstanceOf(
+      ConflictError,
+    );
+    await expect(service.create({ name: 'Ana', email: 'a@a.com' })).rejects.toThrow(
+      'E-mail já cadastrado',
+    );
     expect(repo.create).not.toHaveBeenCalled();
   });
 

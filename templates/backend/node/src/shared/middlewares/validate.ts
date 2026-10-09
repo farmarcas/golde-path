@@ -1,14 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { ZodType } from 'zod';
 
-declare global {
-  namespace Express {
-    interface Locals {
-      validated?: unknown;
-    }
-  }
-}
-
 export const validate = (schema: ZodType) => (req: Request, res: Response, next: NextFunction) => {
   const parsed = schema.safeParse({
     body: req.body,

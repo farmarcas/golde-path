@@ -13,7 +13,9 @@ describe('users routes', () => {
   });
 
   it('deve criar usuário quando dados são válidos', async () => {
-    const response = await request(app).post('/api/v1/users').send({ name: 'Ana', email: 'a@a.com' });
+    const response = await request(app)
+      .post('/api/v1/users')
+      .send({ name: 'Ana', email: 'a@a.com' });
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({ name: 'Ana', email: 'a@a.com' });
@@ -21,7 +23,9 @@ describe('users routes', () => {
   });
 
   it('deve responder 400 quando body é inválido', async () => {
-    const response = await request(app).post('/api/v1/users').send({ name: 'A', email: 'nao-email', extra: true });
+    const response = await request(app)
+      .post('/api/v1/users')
+      .send({ name: 'A', email: 'nao-email', extra: true });
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -30,7 +34,9 @@ describe('users routes', () => {
   it('deve responder 409 quando e-mail já existe', async () => {
     await request(app).post('/api/v1/users').send({ name: 'Ana', email: 'a@a.com' });
 
-    const response = await request(app).post('/api/v1/users').send({ name: 'Ana', email: 'a@a.com' });
+    const response = await request(app)
+      .post('/api/v1/users')
+      .send({ name: 'Ana', email: 'a@a.com' });
 
     expect(response.status).toBe(409);
     expect(response.body.error.code).toBe('EMAIL_ALREADY_EXISTS');
@@ -54,7 +60,9 @@ describe('users routes', () => {
   });
 
   it('deve remover usuário quando id existe', async () => {
-    const created = await request(app).post('/api/v1/users').send({ name: 'Ana', email: 'a@a.com' });
+    const created = await request(app)
+      .post('/api/v1/users')
+      .send({ name: 'Ana', email: 'a@a.com' });
 
     const removed = await request(app).delete(`/api/v1/users/${created.body.id}`);
     const fetched = await request(app).get(`/api/v1/users/${created.body.id}`);
