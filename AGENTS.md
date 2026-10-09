@@ -38,7 +38,7 @@ Esta ordem é um caminho, não uma lista obrigatória. Pule a etapa cujo context
 4. **Ambiente** — Dockerfiles e Compose, quando o projeto precisar rodar em container.
 5. **Subir** — somente quando a pessoa pedir para rodar, ou quando a entrega incluir o ambiente no ar.
 
-Schema e migration nascem nas skills de banco. A skill de API consome o banco; ela não substitui `schema-design` nem `migrations`.
+Schema, migration e seed nascem nas skills de banco. A skill de API consome o banco; ela não substitui `schema-design`, `migrations` nem `seed-data`.
 
 ## Interface — React
 
@@ -88,16 +88,17 @@ Esqueleto de referência Node, para copiar quando a skill mandar: `templates/bac
 Guia: `database/DATABASE.md`  
 Contexto extra: `database/README.md`
 
-Abra este contexto ao criar ou alterar banco, tabela, chave, índice, migration ou compose de dados, e ao modelar dado pessoal, exclusão ou retenção.
+Abra este contexto ao criar ou alterar banco, tabela, chave, índice, migration, seed ou compose de dados, e ao modelar dado pessoal, exclusão ou retenção.
 
 | Atividade | Skill | Abra quando | Pule quando |
 | --- | --- | --- | --- |
 | Modelar entidades, tabelas, chaves, índices e revisão de schema | `database/postgres/skills/schema-design/SKILL.md` | Desenhar ou revisar o modelo (3NF, PK, soft delete, LGPD) | A tabela já estiver modelada e o trabalho for só escrever ou aplicar o arquivo de migration |
 | Criar e aplicar migrations SQL versionadas | `database/postgres/skills/migrations/SKILL.md` | Evoluir schema, escrever SQL versionado ou aplicar migration no Postgres local | Ainda não houver modelo; nesse caso abra `schema-design` antes |
+| Popular o banco com dados de exemplo (perguntas de negócio + SQL em `seeds/`) | `database/postgres/skills/seed-data/SKILL.md` | Seed, fixtures, massa para demo/teste local, “dados de exemplo” | Schema ainda não existir (abra `schema-design` / `migrations` antes); pedido for dump ou dado real de produção |
 
-Leia `DATABASE.md` antes das duas. PostgreSQL é o banco relacional padrão (`postgres:16-alpine` no Compose).
+Leia `DATABASE.md` antes das skills de banco. PostgreSQL é o banco relacional padrão (`postgres:16-alpine` no Compose).
 
-Schema novo: `schema-design` e depois `migrations`. Mudança em tabela que já existe: `migrations`, respeitando a PK já escolhida.
+Schema novo: `schema-design` e depois `migrations`. Mudança em tabela que já existe: `migrations`, respeitando a PK já escolhida. Dados de exemplo: `seed-data` depois do schema (e migrations) existirem.
 
 ## Ambiente local — Docker
 

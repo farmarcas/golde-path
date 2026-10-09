@@ -8,18 +8,20 @@ Esta pasta define **o que** e **como** um agente deve fazer ao criar ou evoluir 
 
 | Artefato | Papel |
 |----------|--------|
-| [DATABASE.md](DATABASE.md) | Políticas normativas (stack, Docker, naming, PK, normalização, LGPD, exclusão lógica) |
+| [DATABASE.md](DATABASE.md) | Políticas normativas (stack, Docker, naming, PK, UTF8/acentos, seeds, normalização, LGPD, exclusão lógica) |
 | Skills em `postgres/skills/` | Procedimentos operacionais que aplicam essas políticas |
 
-Fluxo esperado: ler `DATABASE.md` → executar a skill adequada → entregar schema/migrations/compose no projeto consumidor.
+Fluxo esperado: ler `DATABASE.md` → executar a skill adequada → entregar schema/migrations/seeds/compose no projeto consumidor.
 
 ## DATABASE.md
 
-Documento-pai obrigatório. Use ao criar ou alterar banco, schema, migrations, compose de dados, modelagem com PII ou regras de exclusão/retenção.
+Documento-pai obrigatório. Use ao criar ou alterar banco, schema, migrations, seeds, compose de dados, modelagem com PII ou regras de exclusão/retenção.
 
 Cobre, entre outros:
 
 - PostgreSQL como padrão relacional e Compose local
+- UTF8 e collation ICU `pt-BR` para texto com acentuação (dados brasileiros)
+- Seeds locais/dev (dados fictícios, sem PII real)
 - Tabelas no plural, boas práticas de schema
 - Escolha de PK pelo contexto (`bigint` ou UUIDv7)
 - Normalização (3NF), LGPD e exclusão lógica (`deleted_at`)
@@ -32,6 +34,7 @@ Formato [Agent Skills](https://github.com/agentskills/agentskills) (`name` + `de
 |-------|---------|-------------|
 | **schema-design** | [postgres/skills/schema-design/SKILL.md](postgres/skills/schema-design/SKILL.md) | Modelar entidades, tabelas, chaves, índices e revisar schema |
 | **migrations** | [postgres/skills/migrations/SKILL.md](postgres/skills/migrations/SKILL.md) | Criar/aplicar migrations SQL versionadas e evoluir o schema |
+| **seed-data** | [postgres/skills/seed-data/SKILL.md](postgres/skills/seed-data/SKILL.md) | Perguntas de negócio + SQL de seed em `seeds/` para local/dev |
 
 ## Estrutura
 
@@ -43,6 +46,8 @@ database/
     └── skills/
         ├── schema-design/
         │   └── SKILL.md
-        └── migrations/
+        ├── migrations/
+        │   └── SKILL.md
+        └── seed-data/
             └── SKILL.md
 ```
